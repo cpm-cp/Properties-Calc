@@ -61,7 +61,7 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def calculate_cp_mix(substances: list, molar_fractions: float, Tmin:float, Tmax:float, R: float = 8.314, df: DataFrame = df) -> float:
+def calculate_H_ideal_mix(substances: list, molar_fractions: float, Tmin:float, Tmax:float, R: float = 8.314, df: DataFrame = df, current: str = "entry") -> float:
     """
     Calculate the calorific capacity for a mixture of selected substances using four individual function (V.0.1)[ignore it].
     Using the following equation: Cp_ideal_mix / R = A + B*T + C*T^2 + D*T^-2 
@@ -143,12 +143,12 @@ def calculate_cp_mix(substances: list, molar_fractions: float, Tmin:float, Tmax:
     
     # Check if Tmin is zero before performing division
     if Tmin == 0:
-        cp_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * Tmax**-1) * R
+        enthalpy_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * Tmax**-1) * R
     else:
-        cp_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * (Tmax**-1 - Tmin**-1)) * R
+        enthalpy_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * (Tmax**-1 - Tmin**-1)) * R
 
-    print(f"The Cp ideal mix value is: {cp_value:.4f} kJ/kmol")
+    print(f"The ideal enthalpy mix value at {current} is: {enthalpy_value:.4f} kJ/kmol")
     print(80 * "-")
-    return cp_value
+    return enthalpy_value
 
     
