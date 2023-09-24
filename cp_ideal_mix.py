@@ -1,5 +1,5 @@
 from pandas import DataFrame
-from scipy.integrate import quad
+import numpy as np
 
 data = [
     ["Methane", 1500, 4.217, 1.702, 9.081, -2.164, 0.0],
@@ -61,91 +61,35 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def calculate_H_ideal_mix(substances: list, molar_fractions: float, Tmin:float, Tmax:float, R: float = 8.314, df: DataFrame = df, current: str = "entry") -> float:
-    """
-    Calculate the calorific capacity for a mixture of selected substances using four individual function (V.0.1)[ignore it].
-    Using the following equation: Cp_ideal_mix / R = A + B*T + C*T^2 + D*T^-2 
-    {Smith; Van Ness}  
-    
+def calculate_H_ideal_mix(substances: list, molar_fractions: float, Tmin: float, Tmax: float, R=8.314, df: DataFrame=df, current: str="entry") -> float:
+    """This function calculate the enthalpy ideal by the mix for a specific current.
+
     Args:
-        substances (list): List of substances ("Substance") involved in the mixture.
-        molar_fractions (list): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing substance properties, including 'Substance' and 'A', 'B', 'C' & 'D' constants.
-        
+        substances (list): name substanteces in English.
+        molar_fractions (float): molar fractions by the components.
+        Tmin (float): min temperature or reference temperature.
+        Tmax (float): temperature by the state (current).
+        R (float, optional): gas constant in kJ/kmol*K. Defaults to 8.314.
+        df (DataFrame, optional): data information. Defaults to df.
+        current (str, optional): current status. Defaults to "entry".
+
     Returns:
-        float: The calculated calorific capacity at constant pressure for the mixture of selected substances.
+        float: Enthalpy ideal mix.
     """
-    def A_mix(df) -> float:
-        """Calculate the A constant for the mixing as ideal gas
+    A_values = df[df['Substance'].isin(substances)]['A'].values
+    B_values = df[df['Substance'].isin(substances)]['B'].values
+    C_values = df[df['Substance'].isin(substances)]['C'].values
+    D_values = df[df['Substance'].isin(substances)]['D'].values
 
-        Args:
-            df (df): Admit the A constant values for a N substance in a mixing
+    A_mixing = np.dot(molar_fractions, A_values)
+    B_mixing = np.dot(molar_fractions, B_values)
+    C_mixing = np.dot(molar_fractions, C_values)
+    D_mixing = np.dot(molar_fractions, D_values)
 
-        Returns:
-            float: Return de A constant mixing value as ideal gas
-        """
-        A_mixing = 0.00
-        for substance, molar_fraction in zip(substances, molar_fractions):
-            A_substance = df[df['Substance'] == substance]['A'].values[0]
-            A_mixing += molar_fraction * A_substance
-        return A_mixing
-
-    def B_mix(df) -> float:
-        """Calculate the B constant for the mixing as ideal gas
-
-        Args:
-            df (df): Admit the B constant values for a N substance in a mixing
-
-        Returns:
-            float: Return de B constant mixing value as ideal gas
-        """
-        B_mixing = 0.00
-        for substance, molar_fraction in zip(substances, molar_fractions):
-            B_substance = df[df['Substance'] == substance]['B'].values[0]
-            B_mixing += molar_fraction * B_substance
-        return B_mixing
-
-    def C_mix(df) -> float:
-        """Calculate the C constant for the mixing as ideal gas
-
-        Args:
-            df (df): Admit the C constant values for a N substance in a mixing
-
-        Returns:
-            float: Return de C constant mixing value as ideal gas
-        """
-        C_mixing = 0.00
-        for substance, molar_fraction in zip(substances, molar_fractions):
-            C_substance = df[df['Substance'] == substance]['C'].values[0]
-            C_mixing += molar_fraction * C_substance
-        return C_mixing
-    
-    def D_mix(df) -> float:
-        """Calculate the D constant for the mixing as ideal gas
-
-        Args:
-            df (df): Admit the D constant values for a N substance in a mixing
-
-        Returns:
-            float: Return de D constant mixing value as ideal gas
-        """
-        D_mixing = 0.00
-        for substance, molar_fraction in zip(substances, molar_fractions):
-            D_substance = df[df['Substance'] == substance]['D'].values[0]
-            D_mixing += molar_fraction * D_substance
-        return D_mixing
-    
-    
-    A = A_mix(df)
-    B = B_mix(df)
-    C = C_mix(df)
-    D = D_mix(df)
-    
-    # Check if Tmin is zero before performing division
     if Tmin == 0:
-        enthalpy_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * Tmax**-1) * R
+        enthalpy_value = (A_mixing * (Tmax - Tmin) + B_mixing / 2 * (Tmax**2 - Tmin**2) + C_mixing / 3 * (Tmax**3 - Tmin**3) - D_mixing * Tmax**-1) * R
     else:
-        enthalpy_value = (A * (Tmax - Tmin) + B / 2 * (Tmax**2 - Tmin**2) + C / 3 * (Tmax**3 - Tmin**3) - D * (Tmax**-1 - Tmin**-1)) * R
+        enthalpy_value = (A_mixing * (Tmax - Tmin) + B_mixing / 2 * (Tmax**2 - Tmin**2) + C_mixing / 3 * (Tmax**3 - Tmin**3) - D_mixing * (Tmax**-1 - Tmin**-1)) * R
 
     print(f"The ideal enthalpy mix value at {current} is: {enthalpy_value:.4f} kJ/kmol")
     print(80 * "-")
