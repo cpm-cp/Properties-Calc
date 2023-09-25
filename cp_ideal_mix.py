@@ -61,14 +61,41 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def calculate_H_ideal_mix(substances: list, molar_fractions: float, Tmin: float, Tmax: float, R=8.314, df: DataFrame=df, current: str="entry") -> float:
+
+# def get_substance_properties(substance_name, df):
+#     row = df[df['Substance'] == substance_name]
+#     if not row.empty:
+#         return {
+#             "Substance": row['Substance'].values[0],
+#             "Tmax": row['Tmax'].values[0],
+#             "CP_298/R": row['CP_298/R'].values[0],
+#             "A": row['A'].values[0],
+#             "B": row['B'].values[0],
+#             "C": row['C'].values[0],
+#             "D": row['D'].values[0]
+#         }
+#     return None  # Devuelve None si la sustancia no se encuentra en el DataFrame
+
+# # Ejemplo de uso:
+# substance_name = "Ethane"  # Cambia esto al nombre de la sustancia que deseas buscar
+# substance_properties = get_substance_properties(substance_name, df)
+
+# if substance_properties:
+#     print(f"Propiedades de la sustancia {substance_name}:")
+#     for key, value in substance_properties.items():
+#         print(f"{key}: {value}")
+# else:
+#     print(f"Sustancia {substance_name} no encontrada en la lista.")
+
+
+def calculate_H_ideal_mix(substances: list, molar_fractions: float, T_reference: float, T_state: float, R=8.314, df: DataFrame=df, current: str="entry") -> float:
     """This function calculate the enthalpy ideal by the mix for a specific current.
 
     Args:
         substances (list): name substanteces in English.
         molar_fractions (float): molar fractions by the components.
-        Tmin (float): min temperature or reference temperature.
-        Tmax (float): temperature by the state (current).
+        T_reference (float): min temperature or reference temperature.
+        T_state (float): temperature by the state (current).
         R (float, optional): gas constant in kJ/kmol*K. Defaults to 8.314.
         df (DataFrame, optional): data information. Defaults to df.
         current (str, optional): current status. Defaults to "entry".
@@ -86,13 +113,47 @@ def calculate_H_ideal_mix(substances: list, molar_fractions: float, Tmin: float,
     C_mixing = np.dot(molar_fractions, C_values)
     D_mixing = np.dot(molar_fractions, D_values)
 
-    if Tmin == 0:
-        enthalpy_value = (A_mixing * (Tmax - Tmin) + B_mixing / 2 * (Tmax**2 - Tmin**2) + C_mixing / 3 * (Tmax**3 - Tmin**3) - D_mixing * Tmax**-1) * R
+    if T_reference == 0:
+        enthalpy_value = (A_mixing * (T_state - T_reference) + B_mixing / 2 * (T_state**2 - T_reference**2) + C_mixing / 3 * (T_state**3 - T_reference**3) - D_mixing * T_state**-1) * R
     else:
-        enthalpy_value = (A_mixing * (Tmax - Tmin) + B_mixing / 2 * (Tmax**2 - Tmin**2) + C_mixing / 3 * (Tmax**3 - Tmin**3) - D_mixing * (Tmax**-1 - Tmin**-1)) * R
+        enthalpy_value = (A_mixing * (T_state - T_reference) + B_mixing / 2 * (T_state**2 - T_reference**2) + C_mixing / 3 * (T_state**3 - T_reference**3) - D_mixing * (T_state**-1 - T_reference**-1)) * R
 
     print(f"The ideal enthalpy mix value at {current} is: {enthalpy_value:.4f} kJ/kmol")
     print(80 * "-")
     return enthalpy_value
 
+
+def calculate_S_ideal_mix(substances: list, molar_fractions: float, T_reference: float, T_state: float, P_reference: float, P_state:float, R=8.314, df: DataFrame=df, current: str="entry") -> float:
+    """This function calculate the entropy ideal by the mix for a specific current.
+
+    Args:
+        substances (list): name substanteces in English.
+        molar_fractions (float): molar fractions by the components.
+        T_reference (float): min temperature or reference temperature.
+        T_state (float): temperature by the state (current).
+        R (float, optional): gas constant in kJ/kmol*K. Defaults to 8.314.
+        df (DataFrame, optional): data information. Defaults to df.
+        current (str, optional): current status. Defaults to "entry".
+
+    Returns:
+        float: Entropy ideal mix.
+    """
+    A_values = df[df['Substance'].isin(substances)]['A'].values
+    B_values = df[df['Substance'].isin(substances)]['B'].values
+    C_values = df[df['Substance'].isin(substances)]['C'].values
+    D_values = df[df['Substance'].isin(substances)]['D'].values
+
+    A_mixing = np.dot(molar_fractions, A_values)
+    B_mixing = np.dot(molar_fractions, B_values)
+    C_mixing = np.dot(molar_fractions, C_values)
+    D_mixing = np.dot(molar_fractions, D_values)
+
+    if T_reference == 0:
+        entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * T_state**-1) * R - np.log(P_state / P_reference)
+    else:
+        entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2)) * R - np.log(P_state / P_reference)
+
+    print(f"The ideal entropy mix value at {current} is: {entropy_value:.4f} kJ/kmol*K")
+    print(80 * "-")
+    return entropy_value
     

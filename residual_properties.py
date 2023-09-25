@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 # Data for the H^R0
 data_HR0 = [
@@ -51,9 +52,35 @@ index = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85,
 HR0 = pd.DataFrame(data_HR0, columns=header, index=index)
 
 
-# Change the name of the header and index
-HR0 = HR0.rename_axis("Pr", axis=1)
-HR0 = HR0.rename_axis("Tr", axis=0)
+# # Change the name of the header and index
+# HR0 = HR0.rename_axis("Pr", axis=1)
+# HR0 = HR0.rename_axis("Tr", axis=0)
+
+# # Define the values for Pr and Tr
+# pr_value = 0.53
+# tr_value = 1.03
+
+# # Check if pr_value is within the range of available Pr values
+# if pr_value < HR0.columns.min() or pr_value > HR0.columns.max():
+#     print("pr_value is outside the range of available Pr values.")
+# else:
+#     # Check if tr_value is within the range of available Tr values
+#     if tr_value < HR0.index.min() or tr_value > HR0.index.max():
+#         print("tr_value is outside the range of available Tr values.")
+#     else:
+#         # Find the nearest lower and higher Pr values
+#         pr_lower = HR0.columns[HR0.columns <= pr_value].max()
+#         pr_higher = HR0.columns[HR0.columns >= pr_value].min()
+
+#         # Interpolate along the Pr axis for both lower and higher Pr values
+#         interpolated_lower = HR0.interpolate(method='linear', axis=1).loc[tr_value, pr_lower]
+#         interpolated_higher = HR0.interpolate(method='linear', axis=1).loc[tr_value, pr_higher]
+
+#         # Interpolate along the Pr axis for the final result
+#         interpolated_value = np.interp(pr_value, [pr_lower, pr_higher], [interpolated_lower, interpolated_higher])
+
+#         print(f"Interpolated value for Pr = {pr_value} and Tr = {tr_value}: {interpolated_value}")
+
 
 
 # Data for the H^R1
