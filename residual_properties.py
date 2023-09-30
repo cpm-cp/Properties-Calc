@@ -1,6 +1,28 @@
 import pandas as pd
 import numpy as np
 
+# Model to calculate the 2nd virial coeff
+def calcular_coeficiente_virial(y, B):
+    n = len(y)
+    B_matrix = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(n):
+            B_matrix[i, j] = y[i] * y[j] * B[i, j]
+
+    coeficiente_virial = 2 * np.sum(B_matrix) - np.trace(B_matrix)
+    return coeficiente_virial
+
+# Ejemplo de uso
+# Definir las fracciones molares y la matriz B
+y = [0.3, 0.7]  # Dos componentes
+B = np.array([[0.1, 0.2],
+              [0.2, 0.3]])
+
+# Calcular el coeficiente virial
+coeficiente_virial = calcular_coeficiente_virial(y, B)
+print("Coeficiente virial:", coeficiente_virial)
+
 # Data for the H^R0
 data_HR0 = [
     [-6.045, -6.043, -6.040, -6.034, -6.022, -6.011, -5.999, -5.987, -5.975, -5.957, -5.927, -5.868, -5.748, -5.628, -5.446],
