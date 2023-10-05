@@ -1,6 +1,7 @@
 import time
 from tools.critic_values import calculate_critical_mixture_properties
 from tools.ideal_properties import calculate_H_ideal_mix, calculate_S_ideal_mix
+from tools.residual_properties import residual_properties
 
 # Example substances and molar fractions (summing to 1) for the mixture
 selected_substances = ['Carbon dioxide', 'Carbon monoxide', 'Hydrogen', 'Nitrogen', 'Methane', 'Water']
@@ -24,8 +25,9 @@ P_oulet = 1 # bar
 start_time = time.perf_counter()
 
 Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
-calculate_H_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, current="entry")
-calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+H_residual_inner, S_residual_inner = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
+H_ideal_inner = calculate_H_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, current="entry")
+S_ideal_inner = calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
 
 # Save the end time
 end_time = time.perf_counter()

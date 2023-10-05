@@ -1,28 +1,6 @@
 import pandas as pd
 import numpy as np
 
-# Model to calculate the 2nd virial coeff
-def calcular_coeficiente_virial(y, B):
-    n = len(y)
-    B_matrix = np.zeros((n, n))
-
-    for i in range(n):
-        for j in range(n):
-            B_matrix[i, j] = y[i] * y[j] * B[i, j]
-
-    coeficiente_virial = 2 * np.sum(B_matrix) - np.trace(B_matrix)
-    return coeficiente_virial
-
-# # Ejemplo de uso
-# # Definir las fracciones molares y la matriz B
-# y = [0.3, 0.7]  # Dos componentes
-# B = np.array([[0.1, 0.2],
-#               [0.2, 0.3]])
-
-# # Calcular el coeficiente virial
-# coeficiente_virial = calcular_coeficiente_virial(y, B)
-# print("Coeficiente virial:", coeficiente_virial)
-
 # Data for the H^R0
 data_HR0 = [
     [-6.045, -6.043, -6.040, -6.034, -6.022, -6.011, -5.999, -5.987, -5.975, -5.957, -5.927, -5.868, -5.748, -5.628, -5.446],
@@ -73,36 +51,9 @@ index = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85,
 
 HR0 = pd.DataFrame(data_HR0, columns=header, index=index)
 
-
-# # Change the name of the header and index
-# HR0 = HR0.rename_axis("Pr", axis=1)
-# HR0 = HR0.rename_axis("Tr", axis=0)
-
-# # Define the values for Pr and Tr
-# pr_value = 0.53
-# tr_value = 1.03
-
-# # Check if pr_value is within the range of available Pr values
-# if pr_value < HR0.columns.min() or pr_value > HR0.columns.max():
-#     print("pr_value is outside the range of available Pr values.")
-# else:
-#     # Check if tr_value is within the range of available Tr values
-#     if tr_value < HR0.index.min() or tr_value > HR0.index.max():
-#         print("tr_value is outside the range of available Tr values.")
-#     else:
-#         # Find the nearest lower and higher Pr values
-#         pr_lower = HR0.columns[HR0.columns <= pr_value].max()
-#         pr_higher = HR0.columns[HR0.columns >= pr_value].min()
-
-#         # Interpolate along the Pr axis for both lower and higher Pr values
-#         interpolated_lower = HR0.interpolate(method='linear', axis=1).loc[tr_value, pr_lower]
-#         interpolated_higher = HR0.interpolate(method='linear', axis=1).loc[tr_value, pr_higher]
-
-#         # Interpolate along the Pr axis for the final result
-#         interpolated_value = np.interp(pr_value, [pr_lower, pr_higher], [interpolated_lower, interpolated_higher])
-
-#         print(f"Interpolated value for Pr = {pr_value} and Tr = {tr_value}: {interpolated_value}")
-
+# Change the name of the header and index
+HR0 = HR0.rename_axis("Pr", axis=1)
+HR0 = HR0.rename_axis("Tr", axis=0)
 
 
 # Data for the H^R1
@@ -149,14 +100,11 @@ data_HR1 = [
     [0.002, 0.008, 0.016, 0.032, 0.064, 0.096, 0.127, 0.158, 0.188, 0.233, 0.306, 0.442, 0.680, 0.874, 1.097]
 ]
 
-
 HR1 = pd.DataFrame(data_HR1, columns=header, index=index)
-
 
 # Change the name of the header and index
 HR1 = HR1.rename_axis("Pr", axis=1)
 HR1 = HR1.rename_axis("Tr", axis=0)
-
 
 data_SR0 = [
     [-11.614, -10.008, -9.319, -8.635, -7.961, -7.574, -7.304, -7.099, -6.935, -6.740, -6.497, -6.180, -5.847, -5.683, -5.578],
@@ -202,7 +150,6 @@ data_SR0 = [
 ]
 
 SR0 = pd.DataFrame(data_SR0, columns=header, index=index)
-
 
 # Change the name of the header and index
 SR0 = SR0.rename_axis("Pr", axis=1)
@@ -254,7 +201,83 @@ data_SR1 = [
 
 SR1 = pd.DataFrame(data_SR1, columns=header, index=index)
 
-
 # Change the name of the header and index
 SR1 = SR1.rename_axis("Pr", axis=1)
 SR1 = SR1.rename_axis("Tr", axis=0)
+
+
+
+def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> float:
+    """Calculate the residual enthalpy and entropy in function to the pressure, critic pressure, temperature, critic temperature and acentric value.
+
+    Args:
+        P (float): Pressure in bar.
+        P_critic (float): Critic pressure in bar.
+        T (float): Temperature in Kelvin.
+        T_critic (float): Critic temperature in Kelvin
+        w_value (float): Acentric value (dimensionaless)
+        R (float, optional): Gas constant in kJ/kmol * Kelvin. Defaults to 8.314.
+
+    Returns:
+        float: Residual enthalpy.
+    """
+    def B_0(T:float, T_critic:float) -> float:
+        """Calculate B^0 parameter.
+
+        Args:
+            T (float): Temperature in Kelvin
+            T_critic (float): Critic temperature in Kelvin
+
+        Returns:
+            float: B^0 value (dimensionaless).
+        """
+        b_0 = 0.083 - (0.422 / (T / T_critic)**1.6)
+        return b_0
+    def B_1(T:float, T_critic:float) -> float:
+        """Calculate B^1 parameter.
+
+        Args:
+            T (float): Temperature in Kelvin
+            T_critic (float): Critic temperature in Kelvin
+
+        Returns:
+            float: B^1 value (dimensionaless).
+        """
+        b_1 = 0.139 - (0.172 / (T / T_critic)**4.2)
+        return b_1
+    def dB_0dT(T:float, T_critic:float) -> float:
+        """Calculate dB^0/dT parameter.
+
+        Args:
+            T (float): Temperature in Kelvin
+            T_critic (float): Critic temperature in Kelvin
+
+        Returns:
+            float: dB^0/dT value (dimensionaless).
+        """
+        db_0dt = 0.675 / (T / T_critic)**2.6
+        return db_0dt
+    def dB_1dT(T:float, T_critic:float) -> float:
+        """Calculate dB^1/dT parameter.
+
+        Args:
+            T (float): Temperature in Kelvin
+            T_critic (float): Critic temperature in Kelvin
+
+        Returns:
+            float: dB^1/dT value (dimensionaless).
+        """
+        db_1dt = 0.722 / (T / T_critic)**5.2
+        return db_1dt
+    # Calculate B^0, B^1, dB^0/dT, and dB^1/dT using provided functions
+    b_0 = B_0(T, T_critic)
+    b_1 = B_1(T, T_critic)
+    db_0dt = dB_0dT(T, T_critic)
+    db_1dt = dB_1dT(T, T_critic)
+    
+    # Use to calc H_residual:
+    h_residual = R*T_critic * ((P / P_critic) * (b_0 - (T / T_critic) * db_0dt + w_value * (b_1 - (T / T_critic) * db_1dt)))
+
+    # Use to cal S_esidual:
+    s_residual = R * (-(P / P_critic) * (db_0dt + w_value * db_1dt))
+    return h_residual, s_residual
