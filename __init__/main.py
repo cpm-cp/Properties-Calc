@@ -1,4 +1,3 @@
-
 import time
 from tools.critic_values import calculate_critical_mixture_properties
 from tools.ideal_properties import calculate_H_ideal_mix, calculate_S_ideal_mix
