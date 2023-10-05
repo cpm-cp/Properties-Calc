@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 data = [
     ["Methane", 16.043, 0.012, 190.6, 45.99, 0.286, 98.6, 111.4],
@@ -92,156 +93,23 @@ data = [
     ["Sulfuric acid", 98.080, 0.00, 924.0, 64.00, 0.147, 177.0, 610.0]
 ]
 
-columns = ["Molecule", "Molar mass", "ω", "Tc/K", "Pc/bar", "Zc", "cm3.mol-1", "Tn/K"]
+columns = ["Molecule", "Molar mass", "ω", "Tc/K", "Pc/bar", "Zc", "Vc/cm3.mol-1", "Tn/K"]
 
 df = pd.DataFrame(data, columns=columns)
 
 
 # Assuming you have already created the DataFrame 'df' from your data
 
-def calculate_Tc_mixing(substances, molar_fractions, df):
-    """
-    Calculate the critical temperature for a mixture of selected substances.
+def calculate_critical_mixture_properties(substances: list, molar_fractions: list, df=df, R: float = 83.14) -> float:
+    w_values = df[df["Molecule"].isin(substances)]["ω"].values
+    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
+    Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
+    Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
     
-    Args:
-        substances (list): List of substances ("Molecule") involved in the mixture.
-        molar_fractions (list): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing substance properties, including 'Molecule' and 'Tc'.
-        
-    Returns:
-        float: The calculated critical temperature for the mixture of selected substances.
-    """
-    if len(substances) != len(molar_fractions):
-        raise ValueError("Number of substances and molar fractions must be the same.")
-    
-    Tc_mixing = 0.0
-    
-    for substance, molar_fraction in zip(substances, molar_fractions):
-        Tc_substance = df[df['Molecule'] == substance]['Tc/K'].values[0]
-        Tc_mixing += molar_fraction * Tc_substance
-    
-    return Tc_mixing
 
-
-def calculate_Vc_mixing(substances, molar_fractions, df):
-    """
-    Calculate the critical volume for a mixture of selected substances.
-    
-    Args:
-        substances (list): List of substances ("Molecule") involved in the mixture.
-        molar_fractions (list): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing substance properties, including 'Molecule' and 'Vc'.
-        
-    Returns:
-        float: The calculated critical volume for the mixture of selected substances.
-    """
-    if len(substances) != len(molar_fractions):
-        raise ValueError("Number of substances and molar fractions must be the same.")
-    
-    Vc_mixing = 0.0
-    
-    for substance, molar_fraction in zip(substances, molar_fractions):
-        Vc_substance = df[df['Molecule'] == substance]['cm3.mol-1'].values[0]
-        Vc_mixing += molar_fraction * Vc_substance
-    
-    return Vc_mixing
-
-
-def calculate_Zc_mixing(substances, molar_fractions, df):
-    """
-    Calculate the critical compressibility factor for a mixture of selected substances.
-    
-    Args:
-        substances (list): List of substances ("Molecule") involved in the mixture.
-        molar_fractions (list): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing substance properties, including 'Molecule' and 'Zc'.
-        
-    Returns:
-        float: The calculated critical volume for the mixture of selected substances.
-    """
-    if len(substances) != len(molar_fractions):
-        raise ValueError("Number of substances and molar fractions must be the same.")
-    
-    Zc_mixing = 0.0
-    
-    for substance, molar_fraction in zip(substances, molar_fractions):
-        Zc_substance = df[df['Molecule'] == substance]['Zc'].values[0]
-        Zc_mixing += molar_fraction * Zc_substance
-    
-    return Zc_mixing
-
-def calculate_Omega_mixing(substances, molar_fractions, df):
-    """
-    Calculate the Omega for a mixture of selected substances.
-    
-    Args:
-        substances (list): List of substances ("Molecule") involved in the mixture.
-        molar_fractions (list): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing substance properties, including 'Molecule' and 'ω'.
-        
-    Returns:
-        float: The calculated omega value for the mixture of selected substances.
-    """
-    if len(substances) != len(molar_fractions):
-        raise ValueError("Number of substances and molar fractions must be the same.")
-    
-    Omega_mixing = 0.0
-    
-    for substance, molar_fraction in zip(substances, molar_fractions):
-        Omega_substance = df[df['Molecule'] == substance]['ω'].values[0]
-        Omega_mixing += molar_fraction * Omega_substance
-    
-    return Omega_mixing
-
-def calculate_Pc_mixing(Zc_mixture: float, Tc_mixture: float, Vc_mixture: float, R: float = 83.14):
-    '''
-    Calculate the critical pressure for a mixture of selected substances.
-
-    Args:
-        Tc_mixture (float): Critical temperature of the mixture (in K).
-        Zc_mixture (float): Compressibility factor of the mixture.
-        R (float): Gas constant (in cm³ bar / mol K, default is 8.314).
-        Vc_mixture (float): Critical volume of the mixture.
-        
-    Returns:
-        float: The calculated critical pressure for the mixture (in bar).
-    '''
-    Pc_mixing = (Zc_mixture * R * Tc_mixture) / Vc_mixture
-
-    return Pc_mixing
-
-def calculate_mixture_properties(selected_substances, selected_molar_fractions, df=df):
-    '''
-    Calculate mixture properties for a given list of substances and their molar fractions.
-
-    Args:
-        selected_substances (list of str): List of selected substances.
-        selected_molar_fractions (list of float): List of molar fractions corresponding to the selected substances.
-        df (pd.DataFrame): DataFrame containing the properties of all substances.
-
-    Returns:
-        dict: A dictionary containing the calculated mixture properties.
-    '''
-    # Calculate Tc_mixture
-    Tc_mixture = calculate_Tc_mixing(selected_substances, selected_molar_fractions, df)
-
-    # Calculate Vc_mixture
-    Vc_mixture = calculate_Vc_mixing(selected_substances, selected_molar_fractions, df)
-
-    # Calculate Zc_mixture
-    Zc_mixture = calculate_Zc_mixing(selected_substances, selected_molar_fractions, df)
-
-    # Calculate Omega_mixture
-    Omega_mixture = calculate_Omega_mixing(selected_substances, selected_molar_fractions, df)
-
-    # Calculate Pc_mixture using previously calculated values
-    Pc_mixture = calculate_Pc_mixing(Zc_mixture, Tc_mixture, Vc_mixture)
-
-    # Print the calculated properties
-    print(80*"-")
-    print(f"Critical Temperature for the Mixture: {Tc_mixture:.4f} K")
-    print(f"Critical Volume for the Mixture: {Vc_mixture:.4f} cm3.mol-1")
-    print(f"Critical Z for the Mixture: {Zc_mixture:.4f}")
-    print(f"Critical ω for the Mixture: {Omega_mixture}")
-    print(f"Critical Pc for the Mixture: {Pc_mixture:.4f} bar")
-    print(80*"-")
+    Tc_mixing = np.dot(molar_fractions, Tc_values)
+    Vc_mixing = np.dot(molar_fractions, Vc_values)
+    Zc_mixing = np.dot(molar_fractions, Zc_values)
+    w_mixing = np.dot(molar_fractions, w_values)
+    Pc_mixing = (Zc_mixing * R * Tc_mixing) / Vc_mixing
+    return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing

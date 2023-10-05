@@ -1,4 +1,6 @@
-from critic_values import calculate_mixture_properties
+
+import time
+from critic_values import calculate_critical_mixture_properties
 from cp_ideal_mix import calculate_H_ideal_mix, calculate_S_ideal_mix
 
 # Example substances and molar fractions (summing to 1) for the mixture
@@ -19,6 +21,18 @@ P_inner /= 100  # bar
 T_outlet = 1173.15 # K
 P_oulet = 1 # bar
 
-calculate_mixture_properties(selected_substances, selected_molar_fractions)
+# Save the start time
+start_time = time.perf_counter()
+
+calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
 calculate_H_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, current="entry")
 calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+
+# Save the end time
+end_time = time.perf_counter()
+
+# Calculate the execution time
+execution_time = end_time - start_time
+
+# Print the time
+print(f"Execution time: {execution_time:.4f} seconds")

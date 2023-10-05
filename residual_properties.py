@@ -13,15 +13,15 @@ def calcular_coeficiente_virial(y, B):
     coeficiente_virial = 2 * np.sum(B_matrix) - np.trace(B_matrix)
     return coeficiente_virial
 
-# Ejemplo de uso
-# Definir las fracciones molares y la matriz B
-y = [0.3, 0.7]  # Dos componentes
-B = np.array([[0.1, 0.2],
-              [0.2, 0.3]])
+# # Ejemplo de uso
+# # Definir las fracciones molares y la matriz B
+# y = [0.3, 0.7]  # Dos componentes
+# B = np.array([[0.1, 0.2],
+#               [0.2, 0.3]])
 
-# Calcular el coeficiente virial
-coeficiente_virial = calcular_coeficiente_virial(y, B)
-print("Coeficiente virial:", coeficiente_virial)
+# # Calcular el coeficiente virial
+# coeficiente_virial = calcular_coeficiente_virial(y, B)
+# print("Coeficiente virial:", coeficiente_virial)
 
 # Data for the H^R0
 data_HR0 = [
