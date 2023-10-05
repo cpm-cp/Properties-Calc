@@ -1,7 +1,7 @@
 
 import time
-from critic_values import calculate_critical_mixture_properties
-from cp_ideal_mix import calculate_H_ideal_mix, calculate_S_ideal_mix
+from tools.critic_values import calculate_critical_mixture_properties
+from tools.ideal_properties import calculate_H_ideal_mix, calculate_S_ideal_mix
 
 # Example substances and molar fractions (summing to 1) for the mixture
 selected_substances = ['Carbon dioxide', 'Carbon monoxide', 'Hydrogen', 'Nitrogen', 'Methane', 'Water']
