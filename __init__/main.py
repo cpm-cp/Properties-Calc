@@ -24,7 +24,7 @@ P_oulet = 1 # bar
 # Save the start time
 start_time = time.perf_counter()
 
-calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
+Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
 calculate_H_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, current="entry")
 calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
 

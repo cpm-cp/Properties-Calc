@@ -61,33 +61,6 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-
-# def get_substance_properties(substance_name, df):
-#     row = df[df['Substance'] == substance_name]
-#     if not row.empty:
-#         return {
-#             "Substance": row['Substance'].values[0],
-#             "Tmax": row['Tmax'].values[0],
-#             "CP_298/R": row['CP_298/R'].values[0],
-#             "A": row['A'].values[0],
-#             "B": row['B'].values[0],
-#             "C": row['C'].values[0],
-#             "D": row['D'].values[0]
-#         }
-#     return None  # Devuelve None si la sustancia no se encuentra en el DataFrame
-
-# # Ejemplo de uso:
-# substance_name = "Ethane"  # Cambia esto al nombre de la sustancia que deseas buscar
-# substance_properties = get_substance_properties(substance_name, df)
-
-# if substance_properties:
-#     print(f"Propiedades de la sustancia {substance_name}:")
-#     for key, value in substance_properties.items():
-#         print(f"{key}: {value}")
-# else:
-#     print(f"Sustancia {substance_name} no encontrada en la lista.")
-
-
 def calculate_H_ideal_mix(substances: list, molar_fractions: float, T_reference: float, T_state: float, R=8.314, df: DataFrame=df, current: str="entry") -> float:
     """This function calculate the enthalpy ideal by the mix for a specific current.
 

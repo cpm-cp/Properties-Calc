@@ -1,5 +1,5 @@
-import pandas as pd
-import numpy as np
+from pandas import DataFrame
+from numpy import dot
 
 data = [
     ["Methane", 16.043, 0.012, 190.6, 45.99, 0.286, 98.6, 111.4],
@@ -95,21 +95,21 @@ data = [
 
 columns = ["Molecule", "Molar mass", "ω", "Tc/K", "Pc/bar", "Zc", "Vc/cm3.mol-1", "Tn/K"]
 
-df = pd.DataFrame(data, columns=columns)
+df = DataFrame(data, columns=columns)
 
 
 # Assuming you have already created the DataFrame 'df' from your data
 
-def calculate_critical_mixture_properties(substances: list, molar_fractions: list, df=df, R: float = 83.14) -> float:
+def calculate_critical_mixture_properties(substances: list, molar_fractions: list, df: DataFrame =df, R: float = 83.14) -> float:
     w_values = df[df["Molecule"].isin(substances)]["ω"].values
     Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
     Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
     Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
     
 
-    Tc_mixing = np.dot(molar_fractions, Tc_values)
-    Vc_mixing = np.dot(molar_fractions, Vc_values)
-    Zc_mixing = np.dot(molar_fractions, Zc_values)
-    w_mixing = np.dot(molar_fractions, w_values)
+    Tc_mixing = dot(molar_fractions, Tc_values)
+    Vc_mixing = dot(molar_fractions, Vc_values)
+    Zc_mixing = dot(molar_fractions, Zc_values)
+    w_mixing = dot(molar_fractions, w_values)
     Pc_mixing = (Zc_mixing * R * Tc_mixing) / Vc_mixing
     return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing
