@@ -33,7 +33,6 @@ H_residual_inner_reference, S_residual_inner_reference = residual_properties(P=P
 
 # Ideal inner values:
 H_ideal_inner, S_ideal_inner = calculate_ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
-# S_ideal_inner = calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
 
 # Residual inner values at Pressure and Temperature specific:
 H_residual_inner_specific, S_residual_inner_specific = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
@@ -44,7 +43,7 @@ H_residual_inner = H_residual_inner_specific - H_residual_inner_reference
 # Residual S inner
 S_residual_inner = S_residual_inner_specific - S_residual_inner_reference
 
-print(S_ideal_inner)
+
 # Save the end time
 end_time = perf_counter()
 
