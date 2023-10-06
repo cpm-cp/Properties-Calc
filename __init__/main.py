@@ -1,6 +1,6 @@
 from time import perf_counter
 from tools.critic_values import calculate_critical_mixture_properties
-from tools.ideal_properties import calculate_H_ideal_mix, calculate_S_ideal_mix
+from tools.ideal_properties import calculate_ideal_mix_properties
 from tools.residual_properties import residual_properties
 
 # Example substances and molar fractions (summing to 1) for the mixture
@@ -21,14 +21,30 @@ P_inner /= 100  # bar
 T_outlet = 1173.15 # K
 P_oulet = 1 # bar
 
-# Save the start time
+# Save the start time:
 start_time = perf_counter()
 
+# Critical properties:
 Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
-H_residual_inner, S_residual_inner = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
-H_ideal_inner = calculate_H_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, current="entry")
-S_ideal_inner = calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
 
+# Redisual inner values at Reference values:
+H_residual_inner_reference, S_residual_inner_reference = residual_properties(P=P_reference, P_critic=Pc_mixing, T=T_reference, T_critic=Tc_mixing, w_value=w_mixing)
+
+
+# Ideal inner values:
+H_ideal_inner, S_ideal_inner = calculate_ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+# S_ideal_inner = calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+
+# Residual inner values at Pressure and Temperature specific:
+H_residual_inner_specific, S_residual_inner_specific = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
+
+# Residual Inner values:
+# Residual H inner:
+H_residual_inner = H_residual_inner_specific - H_residual_inner_reference
+# Residual S inner
+S_residual_inner = S_residual_inner_specific - S_residual_inner_reference
+
+print(S_ideal_inner)
 # Save the end time
 end_time = perf_counter()
 

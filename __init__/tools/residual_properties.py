@@ -207,7 +207,7 @@ SR1 = SR1.rename_axis("Tr", axis=0)
 
 
 
-def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> float:
+def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> tuple[float, float]:
     """Calculate the residual enthalpy and entropy in function to the pressure, critic pressure, temperature, critic temperature and acentric value.
 
     At moment to obtain the function values is necessary obtain this specific order:
@@ -284,4 +284,5 @@ def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_valu
 
     # Use to cal S_esidual:
     s_residual = R * (-(P / P_critic) * (db_0dt + w_value * db_1dt))
+    
     return h_residual, s_residual
