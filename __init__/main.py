@@ -1,4 +1,4 @@
-import time
+from time import perf_counter
 from tools.critic_values import calculate_critical_mixture_properties
 from tools.ideal_properties import calculate_H_ideal_mix, calculate_S_ideal_mix
 from tools.residual_properties import residual_properties
@@ -22,7 +22,7 @@ T_outlet = 1173.15 # K
 P_oulet = 1 # bar
 
 # Save the start time
-start_time = time.perf_counter()
+start_time = perf_counter()
 
 Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
 H_residual_inner, S_residual_inner = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
@@ -30,7 +30,7 @@ H_ideal_inner = calculate_H_ideal_mix(substances=selected_substances, molar_frac
 S_ideal_inner = calculate_S_ideal_mix(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
 
 # Save the end time
-end_time = time.perf_counter()
+end_time = perf_counter()
 
 # Calculate the execution time
 execution_time = end_time - start_time

@@ -91,8 +91,6 @@ def calculate_H_ideal_mix(substances: list, molar_fractions: float, T_reference:
     else:
         enthalpy_value = (A_mixing * (T_state - T_reference) + B_mixing / 2 * (T_state**2 - T_reference**2) + C_mixing / 3 * (T_state**3 - T_reference**3) - D_mixing * (T_state**-1 - T_reference**-1)) * R
 
-    print(f"The ideal enthalpy mix value at {current} is: {enthalpy_value:.4f} kJ/kmol")
-    print(80 * "-")
     return enthalpy_value
 
 
@@ -126,7 +124,5 @@ def calculate_S_ideal_mix(substances: list, molar_fractions: float, T_reference:
     else:
         entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2)) * R - np.log(P_state / P_reference)
 
-    print(f"The ideal entropy mix value at {current} is: {entropy_value:.4f} kJ/kmol*K")
-    print(80 * "-")
     return entropy_value
     

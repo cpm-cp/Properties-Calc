@@ -101,6 +101,24 @@ df = DataFrame(data, columns=columns)
 # Assuming you have already created the DataFrame 'df' from your data
 
 def calculate_critical_mixture_properties(substances: list, molar_fractions: list, df: DataFrame =df, R: float = 83.14) -> float:
+    """This function calculate the critical mixture properties for a specific current, as critical temperature, critical volume, comprenssibility factor, acentric factor and critical pressure.
+    
+    At moment to use the function is neccesary that obtain the values as this specific order:
+    - Critical temperature.
+    - Critical volume.
+    - Comprenssibility factor.
+    - Acentric factor.
+    - Critical pressure.
+
+    Args:
+        substances (list): Substance to use.
+        molar_fractions (list): Molar fraction in the same order by the substances.
+        df (DataFrame, optional): DataFrame to use for obtain pure parameters. Defaults to df.
+        R (float, optional): Gas constant in cm^3*bar/mol*Kelvin. Defaults to 83.14.
+
+    Returns:
+        float: Critical mixture properties values.
+    """
     w_values = df[df["Molecule"].isin(substances)]["ω"].values
     Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
     Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
@@ -112,4 +130,5 @@ def calculate_critical_mixture_properties(substances: list, molar_fractions: lis
     Zc_mixing = dot(molar_fractions, Zc_values)
     w_mixing = dot(molar_fractions, w_values)
     Pc_mixing = (Zc_mixing * R * Tc_mixing) / Vc_mixing
+
     return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing

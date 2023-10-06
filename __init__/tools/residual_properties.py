@@ -210,6 +210,10 @@ SR1 = SR1.rename_axis("Tr", axis=0)
 def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> float:
     """Calculate the residual enthalpy and entropy in function to the pressure, critic pressure, temperature, critic temperature and acentric value.
 
+    At moment to obtain the function values is necessary obtain this specific order:
+    - Residual enthalpy.
+    - Residual entropy.
+
     Args:
         P (float): Pressure in bar.
         P_critic (float): Critic pressure in bar.
@@ -219,7 +223,7 @@ def residual_properties(P:float, P_critic:float, T:float, T_critic:float, w_valu
         R (float, optional): Gas constant in kJ/kmol * Kelvin. Defaults to 8.314.
 
     Returns:
-        float: Residual enthalpy.
+        float: Residual enthalpy and residual entropy.
     """
     def B_0(T:float, T_critic:float) -> float:
         """Calculate B^0 parameter.
