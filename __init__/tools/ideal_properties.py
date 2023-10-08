@@ -102,6 +102,6 @@ def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_
     else:
         entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2)) * R - np.log(P_state / P_reference)
 
-    return enthalpy_value, entropy_value
+    return round(enthalpy_value, 3), round(entropy_value, 3)
 
     
