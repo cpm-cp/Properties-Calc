@@ -1,6 +1,5 @@
 from pandas import DataFrame
 import numpy as np
-from typing import Tuple
 
 data = [
     ["Methane", 16.043, 0.012, 190.6, 45.99, 0.286, 98.6, 111.4],
@@ -101,8 +100,25 @@ df = DataFrame(data, columns=columns)
 
 # Assuming you have already created the DataFrame 'df' from your data
 
-def calculate_critical_mixture_properties(substances: list[str], molar_fractions: list[float], df: DataFrame =df, R: float = 83.14) -> tuple[float, float, float, float, float]:
-    """This function calculate the critical mixture properties for a specific current, as critical temperature, critical volume, comprenssibility factor, acentric factor and critical pressure.
+def molar_mass_mixture(substances: list[str], molar_fractions: list[float], df: DataFrame = df) -> float:
+    """This function calculate the molar mass by a mixing substance in function to the molar fractions by a substances list.
+
+    Args:
+        substances (list[str]): Substances list.
+        molar_fractions (list[float]): Molar fraction list.
+        df (DataFrame, optional): DataFrame as DataSet. Defaults to df.
+
+    Returns:
+        float: Molar mass by a mixture.
+    """
+    
+    Mass_molar = df[df["Molecule"].isin(substances)]["Molar mass"].values
+    Mass_molar_mix = np.dot(molar_fractions, Mass_molar)
+    return Mass_molar_mix 
+
+def critical_mixture_properties(substances: list[str], molar_fractions: list[float], df: DataFrame = df, R: float = 83.14) -> tuple[float, float, float, float, float]:
+    """This function calculate the critical mixture properties for a specific current, as critical temperature, critical volume, comprenssibility factor, acentric factor and critical pressure
+    and the molar mass by mixing.
 
     At moment to use the function is neccesary that obtain the values as this specific order:
     - Critical temperature.
@@ -110,6 +126,7 @@ def calculate_critical_mixture_properties(substances: list[str], molar_fractions
     - Comprenssibility factor.
     - Acentric factor.
     - Critical pressure.
+    - Molar mass.
 
     Args:
         substances (list[str]): List substances to use.
@@ -118,7 +135,7 @@ def calculate_critical_mixture_properties(substances: list[str], molar_fractions
         R (float, optional): Gas constant in cm^3*bar/mol*Kelvin. Defaults to 83.14.
 
     Returns:
-        tuple[float, float, float, float, float]: Critical mixture properties values.
+        tuple[float, float, float, float, float, float]: Critical mixture properties values and molar mass.
     """
     
     w_values = df[df["Molecule"].isin(substances)]["ω"].values
@@ -126,15 +143,17 @@ def calculate_critical_mixture_properties(substances: list[str], molar_fractions
     Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
     Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
     
+    
     Tc_mixing = np.dot(molar_fractions, Tc_values)
     Vc_mixing = np.dot(molar_fractions, Vc_values)
     Zc_mixing = np.dot(molar_fractions, Zc_values)
     w_mixing = np.dot(molar_fractions, w_values)
     Pc_mixing = (Zc_mixing * R * Tc_mixing) / Vc_mixing
+    
 
     return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing
 
-def residual_properties_ideal_gas(substances: list[str], df: DataFrame, R: float = 83.14, K_ij: bool = False) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def matrix_ideal_properties_mix(substances: list[str], df: DataFrame, R: float = 83.14, K_ij: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     w_values = df[df["Molecule"].isin(substances)]["ω"].values
     Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
     Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
@@ -149,7 +168,7 @@ def residual_properties_ideal_gas(substances: list[str], df: DataFrame, R: float
 
     Pc_ij_matrix = (R * Tc_values[:, None]) / Vc_ij_matrix
 
-    if K_ij:
+    if K_ij != False:
         K_ij_matrix = (2 * np.power(Vc_values[:, None] * Vc_values, 1/6)) / (np.power(Vc_values[:, None], 1/3) + np.power(Vc_values, 1/3))
     else:
         K_ij_matrix = np.zeros((len(substances), len(substances)))
