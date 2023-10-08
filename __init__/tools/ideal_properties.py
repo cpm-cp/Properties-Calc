@@ -61,7 +61,7 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def calculate_ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df, current: str="entry") -> tuple[float, float]:
+def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df, current: str="entry") -> tuple[float, float]:
     """This function calculate the enthalpy and entropy ideal by the mix for a specific current.
     At moment to obtain values should be in this order:
     - Ideal enthalpy.
