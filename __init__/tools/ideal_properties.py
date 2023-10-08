@@ -61,26 +61,27 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def calculate_ideal_mix_properties(substances: list, molar_fractions: float, T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df, current: str="entry") -> tuple[float, float]:
+def calculate_ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df, current: str="entry") -> tuple[float, float]:
     """This function calculate the enthalpy and entropy ideal by the mix for a specific current.
     At moment to obtain values should be in this order:
     - Ideal enthalpy.
     - Ideal entropy. 
 
     Args:
-        substances (list): Substance names in English.
-        molar_fractions (float): Molar fractions by the components.
+        substances (list[str]): List to name substances in English.
+        molar_fractions (list[float]): List to molar fractions by the components.
         T_reference (float): Reference temperature or min temperature.
         T_state (float): Temperature by the state (current).
-        P_reference(float): Reference pressure or min pressure.
-        P_state(float): Pressure by the state (current).
+        P_reference (float): Reference pressure or min pressure.
+        P_state (float): Pressure by the state (current).
         R (float, optional): Gas constant in kJ/kmol*K. Defaults to 8.314.
         df (DataFrame, optional): Data information. Defaults to df.
         current (str, optional): Current status. Defaults to "entry".
 
     Returns:
-        float: Enthalpy and entropy ideal mix.
+        tuple[float, float]: Enthalpy and entropy ideal mix.
     """
+    
     A_values = df[df['Substance'].isin(substances)]['A'].values
     B_values = df[df['Substance'].isin(substances)]['B'].values
     C_values = df[df['Substance'].isin(substances)]['C'].values

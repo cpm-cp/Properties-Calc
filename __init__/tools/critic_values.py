@@ -1,5 +1,6 @@
 from pandas import DataFrame
-from numpy import dot
+import numpy as np
+from typing import Tuple
 
 data = [
     ["Methane", 16.043, 0.012, 190.6, 45.99, 0.286, 98.6, 111.4],
@@ -100,9 +101,9 @@ df = DataFrame(data, columns=columns)
 
 # Assuming you have already created the DataFrame 'df' from your data
 
-def calculate_critical_mixture_properties(substances: list, molar_fractions: list, df: DataFrame =df, R: float = 83.14) -> float:
+def calculate_critical_mixture_properties(substances: list[str], molar_fractions: list[float], df: DataFrame =df, R: float = 83.14) -> tuple[float, float, float, float, float]:
     """This function calculate the critical mixture properties for a specific current, as critical temperature, critical volume, comprenssibility factor, acentric factor and critical pressure.
-    
+
     At moment to use the function is neccesary that obtain the values as this specific order:
     - Critical temperature.
     - Critical volume.
@@ -111,24 +112,48 @@ def calculate_critical_mixture_properties(substances: list, molar_fractions: lis
     - Critical pressure.
 
     Args:
-        substances (list): Substance to use.
-        molar_fractions (list): Molar fraction in the same order by the substances.
+        substances (list[str]): List substances to use.
+        molar_fractions (list[float]): List to molar fraction by the substances.
         df (DataFrame, optional): DataFrame to use for obtain pure parameters. Defaults to df.
         R (float, optional): Gas constant in cm^3*bar/mol*Kelvin. Defaults to 83.14.
 
     Returns:
-        float: Critical mixture properties values.
+        tuple[float, float, float, float, float]: Critical mixture properties values.
     """
+    
     w_values = df[df["Molecule"].isin(substances)]["ω"].values
     Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
     Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
     Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
     
-
-    Tc_mixing = dot(molar_fractions, Tc_values)
-    Vc_mixing = dot(molar_fractions, Vc_values)
-    Zc_mixing = dot(molar_fractions, Zc_values)
-    w_mixing = dot(molar_fractions, w_values)
+    Tc_mixing = np.dot(molar_fractions, Tc_values)
+    Vc_mixing = np.dot(molar_fractions, Vc_values)
+    Zc_mixing = np.dot(molar_fractions, Zc_values)
+    w_mixing = np.dot(molar_fractions, w_values)
     Pc_mixing = (Zc_mixing * R * Tc_mixing) / Vc_mixing
 
     return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing
+
+def residual_properties_ideal_gas(substances: list[str], df: DataFrame, R: float = 83.14, K_ij: bool = False) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    w_values = df[df["Molecule"].isin(substances)]["ω"].values
+    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
+    Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
+    Pc_values = df[df["Molecule"].isin(substances)]["Pc/bar"].values
+
+    # Create matrices:
+    w_ij_matrix = np.outer(w_values, w_values) / 2
+
+    Vc_ij_matrix = (R * (np.power(Vc_values[:, None], 1/3) + np.power(Vc_values, 1/3)) /
+                    (4 * ((Pc_values[:, None] * Vc_values[:, None] / Tc_values[:, None]) +
+                          (Pc_values * Vc_values / Tc_values))))
+
+    Pc_ij_matrix = (R * Tc_values[:, None]) / Vc_ij_matrix
+
+    if K_ij:
+        K_ij_matrix = (2 * np.power(Vc_values[:, None] * Vc_values, 1/6)) / (np.power(Vc_values[:, None], 1/3) + np.power(Vc_values, 1/3))
+    else:
+        K_ij_matrix = np.zeros((len(substances), len(substances)))
+
+    Tc_ij_matrix = (np.sqrt(Tc_values[:, None] * Tc_values) * (1 - K_ij_matrix))**2
+
+    return w_ij_matrix, Vc_ij_matrix, Pc_ij_matrix, K_ij_matrix, Tc_ij_matrix
