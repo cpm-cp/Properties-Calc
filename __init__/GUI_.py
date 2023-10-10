@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from customtkinter import CTk 
 from time import perf_counter
-from tools.critic_values import calculate_critical_mixture_properties
-from tools.ideal_properties import calculate_ideal_mix_properties
+from tools.critic_values import critical_mixture_properties
+from tools.ideal_properties import ideal_mix_properties
 from tools.residual_properties import residual_properties_virial_equation
 
 root = CTk()
@@ -21,10 +21,10 @@ def calculate_properties():
 
     start_time = perf_counter()
 
-    Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = calculate_critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
+    Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing = critical_mixture_properties(substances=selected_substances, molar_fractions=selected_molar_fractions)
     H_residual_inner_reference, S_residual_inner_reference = residual_properties_virial_equation(P=P_reference, P_critic=Pc_mixing, T=T_reference, T_critic=Tc_mixing, w_value=w_mixing)
-    H_ideal_inner, S_ideal_inner = calculate_ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
-    H_residual_inner_specific, S_residual_inner_specific = residual_properties(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
+    H_ideal_inner, S_ideal_inner = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+    H_residual_inner_specific, S_residual_inner_specific = residual_properties_virial_equation(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
     H_residual_inner = H_residual_inner_specific - H_residual_inner_reference
     S_residual_inner = S_residual_inner_specific - S_residual_inner_reference
     H_inner = H_ideal_inner + H_residual_inner
