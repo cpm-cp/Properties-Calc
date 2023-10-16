@@ -3,6 +3,9 @@
 *.py[cod]
 *$py.class
 
+# Ignore .pytest_cache file
+.pytest_cache
+
 # Ignore text__.ipynb files
 text__.ipynb
 
