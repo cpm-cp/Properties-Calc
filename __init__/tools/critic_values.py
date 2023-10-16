@@ -116,6 +116,21 @@ def molar_mass_mixture(substances: list[str], molar_fractions: list[float], df: 
     Mass_molar_mix = np.dot(molar_fractions, Mass_molar)
     return Mass_molar_mix 
 
+def extract_critical_properties_4_VdW(substances:list[str], df: DataFrame = df) -> tuple[float, float]:
+    """Extract critical properties values for a specific substance list for using the Van der Waals EoS to calc residual properties [Enthalpy and Entropy]. 
+
+    Args:
+        substances (list[str]): Substance's list.
+        df (DataFrame, optional): Root DataFrame. Defaults to df.
+
+    Returns:
+        tuple[float, float]: Critic temperature and pressure values.
+    """
+    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
+    Pc_values = df[df["Molecule"].isin(substances)]["Pc/bar"].values
+    return Tc_values, Pc_values
+
+
 def critical_mixture_properties(substances: list[str], molar_fractions: list[float], df: DataFrame = df, R: float = 83.14) -> tuple[float, float, float, float, float]:
     """This function calculate the critical mixture properties for a specific current, as critical temperature, critical volume, comprenssibility factor, acentric factor and critical pressure
     and the molar mass by mixing.
