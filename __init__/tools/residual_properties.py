@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+from critic_values import extract_critical_properties_4_VdW
+from mixing_rules import MixingRules
+from tools.EoS.Van_der_Waals import calc_volume
 
 def residual_properties_virial_equation(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> tuple[float, float]:
     """Calculate the residual enthalpy and entropy in function to the pressure, critic pressure, temperature, critic temperature and acentric value.
@@ -80,3 +83,21 @@ def residual_properties_virial_equation(P:float, P_critic:float, T:float, T_crit
     s_residual = R * (-(P / P_critic) * (db_0dt + w_value * db_1dt))
     
     return h_residual, s_residual
+
+
+def residual_properties_Van_der_Waals(substances:list[str], P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> tuple[float, float]:
+    list_susbstances = substances
+    Tc_values, Pc_values = extract_critical_properties_4_VdW(list_susbstances)
+
+    # Calc a and b paramter to Van der Waals:
+    mix_rules = MixingRules(critical_temperature=Tc_values, critical_pressure=Pc_values)
+    a = mix_rules.calc_a
+    b = mix_rules.calc_b
+    volume = calc_volume(substances=list_susbstances, Pressure=P, Temperature=T)
+    Z = (P * volume) / (R * T)
+    B = (b * P) / (R * T)
+
+    H_r = R*T * (Z - 1) - (a / volume)
+    S_r = R * np.log(Z - B)
+    return H_r, S_r
+
