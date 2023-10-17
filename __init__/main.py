@@ -1,7 +1,7 @@
 from time import perf_counter
 from tools.critic_values import critical_mixture_properties, molar_mass_mixture
 from tools.ideal_properties import ideal_mix_properties
-from tools.residual_properties import residual_properties_virial_equation
+from tools.residual_properties import residual_properties_virial_equation, residual_properties_Van_der_Waals
 
 # Example substances and molar fractions (summing to 1) for the mixture
 selected_substances = ['Carbon dioxide', 'Carbon monoxide', 'Hydrogen', 'Nitrogen', 'Methane', 'Water']
@@ -13,13 +13,10 @@ P_reference = 6.117*10**-3 # bar
 
 # States condition
     # Inner
-T_inner = 1173.15 # K
-P_inner = 550 # kPa
-P_inner /= 100  # bar
+T = [1173.15, 870.45] # inner and outer in  Kelvin
+P = [5.5, 1] # innner and outer in bar
 
-    # Outet
-T_outlet = 1173.15 # K
-P_oulet = 1 # bar
+
 
 # Save the start time:
 start_time = perf_counter()
@@ -35,10 +32,10 @@ H_residual_inner_reference, S_residual_inner_reference = residual_properties_vir
 
 
 # Ideal inner values:
-H_ideal_inner, S_ideal_inner = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T_inner, P_reference=P_reference, P_state=P_inner, current="entry")
+H_ideal_inner, S_ideal_inner = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=T[0], P_reference=P_reference, P_state=P[0], current="entry")
 
 # Residual inner values at Pressure and Temperature specific:
-H_residual_inner_specific, S_residual_inner_specific = residual_properties_virial_equation(P=P_inner, P_critic=Pc_mixing, T=T_inner, T_critic=Tc_mixing, w_value=w_mixing)
+H_residual_inner_specific, S_residual_inner_specific = residual_properties_virial_equation(P=P[0], P_critic=Pc_mixing, T=T[0], T_critic=Tc_mixing, w_value=w_mixing)
 
 # Residual Inner values:
     # Residual H inner:
