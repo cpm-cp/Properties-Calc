@@ -1,5 +1,5 @@
-from mixing_rules import MixingRules
-from critic_values import extract_critical_properties_4_VdW
+from tools.mixing_rules import MixingRules
+from tools.critic_values import extract_critical_properties_4_VdW
 import numpy as np
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from critic_values import extract_critical_properties_4_VdW
-from mixing_rules import MixingRules
+from tools.critic_values import extract_critical_properties_4_VdW
+from tools.mixing_rules import MixingRules
 from tools.EoS.Van_der_Waals import calc_volume
 
 def residual_properties_virial_equation(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> tuple[float, float]:
