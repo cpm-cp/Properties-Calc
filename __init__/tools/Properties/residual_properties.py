@@ -3,7 +3,7 @@ import numpy as np
 from tools.critic_values import extract_critical_properties_4_VdW
 from tools.critic_values import extract_critical_properties_SRK
 from tools.mixing_rules import MixRules4VdW, MixRules4SRK
-from tools.EoS.Volumes import calc_VdW_volume
+from tools.EoS.Volumes import calc_VdW_volume, calc_SRK_volume
 
 def residual_properties_virial_equation(P:float, P_critic:float, T:float, T_critic:float, w_value:float, R: float = 8.314) -> tuple[float, float]:
     """Calculate the residual enthalpy and entropy in function to the pressure, critic pressure, temperature, critic temperature and acentric value.
@@ -64,11 +64,19 @@ def residual_properties_SRK(substances:list[str], molar_fraction, P:list[float],
     Tc_values, Pc_values, w_values = extract_critical_properties_SRK(list_substances)
 
     # Calc a and b parameter to Soave-Redlich-Kwong (SRK):
-    m = 0.480 + 1.574 * w_values - 0.176 * w_values**2
-    mix_rules = MixRulesSRK(critical_temperature=Tc_values, critical_pressure=Pc_values)
+    m_values = 0.480 + 1.574 * w_values - 0.176 * w_values**2
+    m = np.tile(m_values, (2, 1))
+    mix_rules = MixRules4SRK(critical_temperature=Tc_values, critical_pressure=Pc_values)
     a_ij = mix_rules.calc_a_ij(m=m, temperature=T)
 
     a = mix_rules.calc_a_SRK(molar_fractions=molar_fract, a_ij=a_ij)
     b = mix_rules.calc_b_SRK(molar_fractions=molar_fract)
-    pass
+    volume = calc_SRK_volume(substances=list_substances, molar_fraction=molar_fract, Pressure=P, Temperature=T)
+    Z = (P * volume) / (R * T)
+    B = (b * P) / (R * T)
+
+    H_r = R*T * (Z - 1) - (a / volume)
+    S_r = R * np.log(Z - B)
+    
+    return H_r, S_r
 
