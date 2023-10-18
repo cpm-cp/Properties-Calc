@@ -1,9 +1,9 @@
-from tools.mixing_rules import MixingRules
+from tools.mixing_rules import MixRules4VdW
 from tools.critic_values import extract_critical_properties_4_VdW
 import numpy as np
 
 
-def calc_volume(substances:list[str], Pressure, Temperature, R=83.14):
+def calc_volume(substances:list[str], molar_fraction:list[float], Pressure:list[float], Temperature:list[float], R=83.14):
     """
     Calcula el valor de V en la ecuación de estado para un gas utilizando la ecuación cuadrática.
 
@@ -17,28 +17,21 @@ def calc_volume(substances:list[str], Pressure, Temperature, R=83.14):
     """
     list_substances = substances
     Tc_values, Pc_values = extract_critical_properties_4_VdW(list_substances)
-    mix_rules = MixingRules(critical_pressure=Pc_values, critical_temperature=Tc_values)
-    a = mix_rules.calc_a()
-    b = mix_rules.calc_b()
+    mix_rules = MixRules4VdW(critical_pressure=Pc_values, critical_temperature=Tc_values)
+    a = mix_rules.calc_a_VdW(molar_fraction)
+    b = mix_rules.calc_b_VdW(molar_fraction)
 
-    # Coeficientes de la ecuación cuadrática
-    coef_a = 1
-    coef_b = -(R * Temperature / Pressure + b)
-    coef_c = -a / Pressure
-    
-    # Calcular las soluciones usando la fórmula cuadrática
-    discriminante = coef_b**2 - 4 * coef_a * coef_c
-    
-    if discriminante >= 0:
-        solucion_1 = (-coef_b + np.sqrt(discriminante)) / (2 * coef_a)
-        solucion_2 = (-coef_b - np.sqrt(discriminante)) / (2 * coef_a)
-        
-        # Devuelve la solución positiva
-        if solucion_1 >= 0:
-            return solucion_1
-        elif solucion_2 >= 0:
-            return solucion_2
-        else:
-            return None  # No hay soluciones positivas
-    else:
-        return None  # No hay soluciones reales
+     # Coeficientes de la ecuación cuadrática: a = P, b = -(Pb + RT), c = Pb
+    a = Pressure
+    b_coef = -(Pressure * b + R * Temperature)
+    c = Pressure * b
+
+    # Calcular las soluciones usando la fórmula cuadrática vectorizada
+    discriminante = b_coef**2 - 4 * a * c
+    solucion_1 = (-b_coef + np.sqrt(discriminante)) / (2 * a)
+    solucion_2 = (-b_coef - np.sqrt(discriminante)) / (2 * a)
+
+    # Encuentra las soluciones positivas para cada conjunto de temperaturas y presiones
+    volumen = np.where(solucion_1 >= 0, solucion_1, solucion_2)
+
+    return volumen
