@@ -82,10 +82,10 @@ def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_
         tuple[float, float]: Enthalpy and entropy ideal mix.
     """
     
-    A_values = df[df['Substance'].isin(substances)]['A'].values
-    B_values = df[df['Substance'].isin(substances)]['B'].values
-    C_values = df[df['Substance'].isin(substances)]['C'].values
-    D_values = df[df['Substance'].isin(substances)]['D'].values
+    A_values = np.array(sorted(df[df['Substance'].isin(substances)]['A'].values, reverse=True))
+    B_values = np.array(sorted(df[df['Substance'].isin(substances)]['B'].values, reverse=True))
+    C_values = np.array(sorted(df[df['Substance'].isin(substances)]['C'].values, reverse=True))
+    D_values = np.array(sorted(df[df['Substance'].isin(substances)]['D'].values, reverse=True))
 
     A_mixing = np.dot(molar_fractions, A_values)
     B_mixing = np.dot(molar_fractions, B_values)
@@ -102,6 +102,6 @@ def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_
     else:
         entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2)) * R - np.log(P_state / P_reference)
 
-    return round(enthalpy_value, 3), round(entropy_value, 3)
+    return enthalpy_value, entropy_value
 
     
