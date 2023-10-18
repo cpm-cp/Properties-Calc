@@ -71,12 +71,12 @@ class MixingRules:
 class MixRules4VdW(MixingRules):
     def calc_a_ij(self):
         a_i = (27/64) * (self._R * self.critical_temperature)**2 / self.critical_pressure
-        a_ij = np.outer(a_i, a_i)
+        a_ij = np.sqrt(np.outer(a_i, a_i))
         return a_ij
 
     def calc_b_ij(self):
         b_i = (1/8) * (self._R * self.critical_temperature) / self.critical_pressure
-        b_ij = np.outer(b_i, b_i)
+        b_ij = np.outer(b_i, b_i) / 2
         return b_ij
 
     def calc_a_VdW(self, molar_fractions):
@@ -90,3 +90,26 @@ class MixRules4VdW(MixingRules):
         molar_fractions = np.array(molar_fractions)
         b = np.dot(np.dot(molar_fractions, b_ij), molar_fractions.T)
         return b
+    
+class MixRules4SRK(MixingRules):
+    def calc_a_ij(self, m, temperature):
+        a_i = ((0.42748) * (self._R**2 * self.critical_temperature**2) / self.critical_pressure) * (1 + m * (1 - (temperature / self.critical_temperature)**(1/2)))**2
+        a_ij = np.sqrt(np.outer(a_i, a_i))
+        return a_ij
+
+    def calc_b_ij(self):
+        b_i = (0.08664) * (self._R * self.critical_temperature) / self.critical_pressure
+        b_ij = np.outer(b_i, b_i) / 2
+        return b_ij
+    
+    def calc_a_SRK(self, molar_fractions, a_ij):
+        molar_fractions = np.array(molar_fractions)
+        a = np.dot(np.dot(molar_fractions, a_ij), molar_fractions.T)
+        return a
+
+    def calc_b_SRK(self, molar_fractions):
+        b_ij = self.calc_b_ij()
+        molar_fractions = np.array(molar_fractions)
+        b = np.dot(np.dot(molar_fractions, b_ij), molar_fractions.T)
+        return b
+
