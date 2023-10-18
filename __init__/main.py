@@ -1,10 +1,10 @@
 import numpy as np
 from time import perf_counter
 from tools.critic_values import critical_mixture_properties, molar_mass_mixture
-from tools.ideal_properties import ideal_mix_properties
-from tools.residual_properties import residual_properties_virial_equation, residual_properties_Van_der_Waals
+from tools.Properties.ideal_properties import ideal_mix_properties
+from tools.Properties.residual_properties import residual_properties_virial_equation, residual_properties_Van_der_Waals, residual_properties_SRK
 
-# Example substances and molar fractions (summing to 1) for the mixture
+# substances and molar fractions for the mixture
 selected_substances = ['Carbon dioxide', 'Carbon monoxide', 'Hydrogen', 'Nitrogen', 'Methane', 'Water']
 selected_molar_fractions = np.array([0.136, 0.222, 0.1668, 0.4363, 0.0288, 0.0101])
 
@@ -47,7 +47,8 @@ def EoS(select_EoS:str) -> tuple:
     H_ideal_out, S_ideal_out = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=Temperature[1], P_reference=P_reference, P_state=Pressure[1], current="out")
 
     if select_EoS == "Ideal gas":
-
+        # Residual innera nd outer values at Pressure and Temperature specific:
+        # Gas ideal equation.
         H_1, H_2 = H_ideal_inner, H_ideal_out
         S_1, S_2 = S_ideal_inner, S_ideal_out
 
@@ -68,17 +69,24 @@ def EoS(select_EoS:str) -> tuple:
 
     elif select_EoS == "Van der Waals":    
         # Residual innera nd outer values at Pressure and Temperature specific:
-        # Virial equation.
+        # Van der Waals equation.
         H_residual_VdW, S_residual_VdW = residual_properties_Van_der_Waals(substances=selected_substances, molar_fraction=selected_molar_fractions, P=Pressure, T=Temperature)
 
         H_1, H_2 = (H_ideal_inner + H_residual_VdW[0]), (H_ideal_out + H_residual_VdW[1]) 
         S_1, S_2 = (S_ideal_inner + S_residual_VdW[0]), (S_ideal_out + S_residual_VdW[1])
+    elif select_EoS == "SRK":    
+        # Residual innera nd outer values at Pressure and Temperature specific:
+        # Van der Waals equation.
+        H_residual_SRK, S_residual_SRK = residual_properties_SRK(substances=selected_substances, molar_fraction=selected_molar_fractions, P=Pressure, T=Temperature)
+
+        H_1, H_2 = (H_ideal_inner + H_residual_SRK[0]), (H_ideal_out + H_residual_SRK[1]) 
+        S_1, S_2 = (S_ideal_inner + S_residual_SRK[0]), (S_ideal_out + S_residual_SRK[1])
     else:
         raise Exception("EoS select not find, verify.")
     
     return H_1, H_2, S_1, S_2
 
-H_1, H_2, S_1, S_2 = EoS(select_EoS="Van der Waals")
+H_1, H_2, S_1, S_2 = EoS(select_EoS="SRK")
 
 # Potencia de la turbina:
 W_t = n_point*(H_1 - H_2 - Q_loss)
@@ -89,9 +97,5 @@ end_time = perf_counter()
 # Calculate the execution time
 execution_time = (end_time - start_time) * 1000  # miliseconds
 
-print(H_1)
-print(H_2)
-
-print(f"the molar flow rate is {Molecular_mass} kmol/s")
 print(f"The power of turbine is: {W_t} kW")
-print(f"Tiempo de ejecución: {execution_time:.5f} milisegundos")
+print(f"Execution time: {execution_time:.5f} miliseconds")
