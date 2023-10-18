@@ -100,21 +100,19 @@ df_critic_info = DataFrame(data, columns=columns)
 
 # Assuming you have already created the DataFrame 'df' from your data
 
-def molar_mass_mixture(substances: list[str], molar_fractions: list[float], df: DataFrame = df_critic_info) -> float:
-    """This function calculate the molar mass by a mixing substance in function to the molar fractions by a substances list.
+def molar_mass_mixture(substances: list[str], molar_fractions:list[float], df: DataFrame = df_critic_info) -> np.ndarray:
+    """This function retrieves the molar masses of specified substances in the same order as provided in the input list.
 
     Args:
         substances (list[str]): Substances list.
-        molar_fractions (list[float]): Molar fraction list.
         df (DataFrame, optional): DataFrame as DataSet. Defaults to df.
 
     Returns:
-        float: Molar mass by a mixture.
+        np.ndarray: Array of molar masses corresponding to the input substances.
     """
-    
-    Mass_molar = df[df["Molecule"].isin(substances)]["Molar mass"].values
-    Mass_molar_mix = np.dot(molar_fractions, Mass_molar)
-    return Mass_molar_mix 
+    extract_mass = np.array(sorted(df[df["Molecule"].isin(substances)]["Molar mass"].values, reverse=True))
+    molar_mass = np.dot(molar_fractions, extract_mass)
+    return molar_mass
 
 def extract_critical_properties_4_VdW(substances:list[str], df: DataFrame = df_critic_info) -> tuple[float, float]:
     """Extract critical properties values for a specific substance list for using the Van der Waals EoS to calc residual properties [Enthalpy and Entropy]. 
@@ -126,8 +124,8 @@ def extract_critical_properties_4_VdW(substances:list[str], df: DataFrame = df_c
     Returns:
         tuple[float, float]: Critic temperature and pressure values.
     """
-    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
-    Pc_values = df[df["Molecule"].isin(substances)]["Pc/bar"].values
+    Tc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Tc/K"].values, reverse=True))
+    Pc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Pc/bar"].values, reverse=True))
     return Tc_values, Pc_values
 
 
@@ -153,10 +151,10 @@ def critical_mixture_properties(substances: list[str], molar_fractions: list[flo
         tuple[float, float, float, float, float, float]: Critical mixture properties values and molar mass.
     """
     
-    w_values = df[df["Molecule"].isin(substances)]["ω"].values
-    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
-    Zc_values = df[df["Molecule"].isin(substances)]["Zc"].values
-    Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
+    w_values = np.array(sorted(df[df["Molecule"].isin(substances)]["ω"].values, reverse=True))
+    Tc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Tc/K"].values, reverse=True))
+    Zc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Zc"].values, reverse=True))
+    Vc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values, reverse=True))
     
     
     Tc_mixing = np.dot(molar_fractions, Tc_values)
@@ -169,10 +167,10 @@ def critical_mixture_properties(substances: list[str], molar_fractions: list[flo
     return Tc_mixing, Vc_mixing, Zc_mixing, w_mixing, Pc_mixing
 
 def matrix_ideal_properties_mix(substances: list[str], df: DataFrame, R: float = 83.14, K_ij: bool = False) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    w_values = df[df["Molecule"].isin(substances)]["ω"].values
-    Tc_values = df[df["Molecule"].isin(substances)]["Tc/K"].values
-    Vc_values = df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values
-    Pc_values = df[df["Molecule"].isin(substances)]["Pc/bar"].values
+    w_values = np.array(sorted(df[df["Molecule"].isin(substances)]["ω"].values, reverse=True))
+    Tc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Tc/K"].values, reverse=True))
+    Vc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Vc/cm3.mol-1"].values, reverse=True))
+    Pc_values = np.array(sorted(df[df["Molecule"].isin(substances)]["Pc/bar"].values, reverse=True))
 
     # Create matrices:
     w_ij_matrix = np.outer(w_values, w_values) / 2
