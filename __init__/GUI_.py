@@ -3,8 +3,8 @@ from tkinter import ttk
 from customtkinter import CTk 
 from time import perf_counter
 from tools.critic_values import critical_mixture_properties
-from tools.ideal_properties import ideal_mix_properties
-from tools.residual_properties import residual_properties_virial_equation
+from __init__.tools.Properties.ideal_properties import ideal_mix_properties
+from tools.Properties.residual_properties import residual_properties_virial_equation
 
 root = CTk()
 

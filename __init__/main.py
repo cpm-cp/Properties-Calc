@@ -25,6 +25,9 @@ Q_loss = 50 # kW : kJ/s
 # Mass flow rate:
 m_point = 0.6242 # kg/s
 
+# Mean consumption
+Mean_consumption = 0.4 # kW/mes
+
 # Save the start time:
 start_time = perf_counter()
 
@@ -43,8 +46,8 @@ H_residual_reference, S_residual_reference = residual_properties_virial_equation
 def EoS(select_EoS:str) -> tuple:
 
     # Ideal inner and outer values:
-    H_ideal_inner, S_ideal_inner = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=Temperature[0], P_reference=P_reference, P_state=Pressure[0], current="entry")
-    H_ideal_out, S_ideal_out = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=Temperature[1], P_reference=P_reference, P_state=Pressure[1], current="out")
+    H_ideal_inner, S_ideal_inner = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=Temperature[0], P_reference=P_reference, P_state=Pressure[0])
+    H_ideal_out, S_ideal_out = ideal_mix_properties(substances=selected_substances, molar_fractions=selected_molar_fractions, T_reference=T_reference, T_state=Temperature[1], P_reference=P_reference, P_state=Pressure[1])
 
     if select_EoS == "Ideal gas":
         # Residual innera nd outer values at Pressure and Temperature specific:
@@ -86,16 +89,21 @@ def EoS(select_EoS:str) -> tuple:
     
     return H_1, H_2, S_1, S_2
 
-H_1, H_2, S_1, S_2 = EoS(select_EoS="SRK")
+H_1, H_2, S_1, S_2 = EoS(select_EoS="Ideal gas")
 
 # Potencia de la turbina:
-W_t = n_point*(H_1 - H_2 - Q_loss)
-
+W_t = n_point * (H_1 - H_2 - Q_loss)
+S_gen = S_2 - S_1 + Q_loss / T_reference
 # Save the end time
 end_time = perf_counter()
+
+# How much house are supply:
+supply = W_t / Mean_consumption
 
 # Calculate the execution time
 execution_time = (end_time - start_time) * 1000  # miliseconds
 
-print(f"The power of turbine is: {W_t} kW")
+print(f"The generation entropy is: {S_gen} kJ/kmol K")
+print(f"The power of turbine is: {W_t:.3f} kW")
+print(f"The turbine can be supply: {supply:.3f} house per month")
 print(f"Execution time: {execution_time:.5f} miliseconds")

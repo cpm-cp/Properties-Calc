@@ -61,7 +61,7 @@ df['B'] /= 10**3
 df['C'] /= 10**6
 df['D'] /= 10**-5
 
-def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df, current: str="entry") -> tuple[float, float]:
+def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_reference: float, T_state: float, P_reference:float, P_state: float, R: float= 8.314, df: DataFrame=df) -> tuple[float, float]:
     """This function calculate the enthalpy and entropy ideal by the mix for a specific current.
     At moment to obtain values should be in this order:
     - Ideal enthalpy.
@@ -92,15 +92,9 @@ def ideal_mix_properties(substances: list[str], molar_fractions: list[float], T_
     C_mixing = np.dot(molar_fractions, C_values)
     D_mixing = np.dot(molar_fractions, D_values)
 
-    if T_reference == 0:
-        enthalpy_value = (A_mixing * (T_state - T_reference) + B_mixing / 2 * (T_state**2 - T_reference**2) + C_mixing / 3 * (T_state**3 - T_reference**3) - D_mixing * T_state**-1) * R
-    else:
-        enthalpy_value = (A_mixing * (T_state - T_reference) + B_mixing / 2 * (T_state**2 - T_reference**2) + C_mixing / 3 * (T_state**3 - T_reference**3) - D_mixing * (T_state**-1 - T_reference**-1)) * R
+    enthalpy_value = (A_mixing * (T_state - T_reference) + (B_mixing / 2) * (T_state**2 - T_reference**2) + (C_mixing / 3) * (T_state**3 - T_reference**3) - D_mixing * (T_state**-1 - T_reference**-1)) * R
 
-    if T_reference == 0:
-        entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * T_state**-1) * R - np.log(P_state / P_reference)
-    else:
-        entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + C_mixing / 2 * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2)) * R - np.log(P_state / P_reference)
+    entropy_value = (A_mixing * np.log(T_state / T_reference) + B_mixing * (T_state - T_reference) + (C_mixing / 2) * (T_state**2 - T_reference**2) - (D_mixing / 2) * (T_state**-2 - T_reference**-2) - np.log(P_state / P_reference)) * R 
 
     return enthalpy_value, entropy_value
 
